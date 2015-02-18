@@ -18,11 +18,13 @@ Player = React.createClass
       _id: 0
       name: ''
       score: 0
+  selectPlayer: ->
+    Session.set('selectedPlayerId', @props.player._id)
   render: ->
     classes = React.addons.classSet
       'player': true
       'selected': @props.selected
-    return r 'div', {className:classes, onClick: => Session.set('selectedPlayerId', @props.player._id)}, [
+    return r 'div', {className:classes, onClick: @selectPlayer}, [
       r 'span', {className:"name"}, @props.player.name
       r 'span', {className:"score"}, @props.player.score
     ]
@@ -37,14 +39,18 @@ Leaderboard = React.createClass
   getDefaultProps: ->
     players: []
     selectedPlayerId: ''
+  incPlayerScore: ->
+    Players.update(@selectedPlayer._id, {$inc: {score: 5}})
   render: ->
-    players = @props.players.map (player) => r(Player, {player: player, selected: (@props.selectedPlayerId is player._id)})
+    players = @props.players.map (player) => 
+      r(Player, {player: player, selected: (@props.selectedPlayerId is player._id)})
     board = r('div', {className: "leaderboard"}, players)
     selectedPlayer = Players.findOne(@props.selectedPlayerId)
+    @selectedPlayer = selectedPlayer
     if selectedPlayer
       incScore = r 'div', {className: "details"}, [
         r 'span', {className: "name"}, selectedPlayer.name
-        r 'button', {className: "inc", onClick: => Players.update(selectedPlayer._id, {$inc: {score: 5}})}, 'Add 5 points'
+        r 'button', {className: "inc", onClick: @incPlayerScore}, 'Add 5 points'
       ]
       return r 'div', {}, [board, incScore]
     else
