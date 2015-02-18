@@ -7,6 +7,7 @@ r = (type, props, children...) ->
 
 
 Player = React.createClass
+  mixins: [React.addons.PureRenderMixin]
   displayName: 'Player'
   propTypes: 
     player: React.PropTypes.object
@@ -28,6 +29,7 @@ Player = React.createClass
 
 
 Leaderboard = React.createClass
+  mixins: [React.addons.PureRenderMixin]
   displayName: 'Leaderboard'
   propTypes: 
     players: React.PropTypes.array
@@ -48,10 +50,12 @@ Leaderboard = React.createClass
     else
       return r 'div', {}, [board, r('div', {className:"message"}, 'Click a player to select')]
 
+
 appState = ->
   players = Players.find({}, { sort: { score: -1, name: 1 } }).fetch()
   selectedPlayerId = Session.get('selectedPlayerId')
   return {players, selectedPlayerId}
+
 
 Meteor.startup ->
   Tracker.autorun ->
