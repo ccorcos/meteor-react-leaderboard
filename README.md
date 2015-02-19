@@ -14,7 +14,6 @@ To do:
 - What are the performance trade-offs here? Does an app end up becoming one giant component with one giant state?
 - When to use autorun on state vs global props?
 
-- Make some better functions / syntax for creating the DOM. A div function would be nice, for example.
 - Make functions for creating Ionic UI components?
 - Observable streams for UI event handling would be nice - make a side menu!
 
