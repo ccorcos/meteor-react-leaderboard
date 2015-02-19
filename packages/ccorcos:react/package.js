@@ -6,5 +6,6 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('METEOR@1');
-  api.addFiles(['react.js',], 'client');
+  api.use(['coffeescript', 'underscore'], 'client');
+  api.addFiles(['react.js','syntax-jazz.coffee'], 'client');
 });
