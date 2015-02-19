@@ -23,7 +23,6 @@ ReactClass = (args...)->
 {div, span, button, h1} = DOM
 
 Player = ReactClass
-  mixins: [React.addons.PureRenderMixin]
 
   displayName: 'Player'
 
@@ -32,16 +31,15 @@ Player = ReactClass
 
   selectPlayer: ->
     Session.set('selectedPlayerId', @props.playerId)
-    console.log "new selected", Session.get('selectedPlayerId')
+
+  getInitialState: ->
+    {player: {name: "", score: "", id: ""}}
 
   componentWillMount: ->
     self = this
     Tracker.autorun ->
-      self.setState 
-        'player': Players.findOne(self.props.playerId)
-    
-    Tracker.autorun ->
       self.setState
+        'player': Players.findOne(self.props.playerId),
         'isSelected': Session.equals('selectedPlayerId', self.props.playerId)
 
   render: ->
@@ -56,13 +54,18 @@ Player = ReactClass
 
 Toolbar = ReactClass
 
+  getInitialState: ->
+    {selectedPlayer: null}
+
   componentWillMount: ->
     self = this
     Tracker.autorun ->
-      playerId = Session.get('selectedPlayerId')
-      console.log "toolbar selected", playerId
-      self.setState 
-        'seletedPlayer': null#Players.findOne(playerId, {fields:{name:1}})
+      try
+        playerId = Session.get('selectedPlayerId')
+        if _.isString(playerId) and playerId.length > 0
+          self.setState({selectedPlayer: Players.findOne({_id: playerId})})
+      catch e
+        console.log(e)
 
   incPlayerScore: ->
     Players.update(@state.selectedPlayer._id, {$inc: {score: 5}})
@@ -77,7 +80,6 @@ Toolbar = ReactClass
       (div {className:"message"}, 'Click a player to select')
 
 Leaderboard = ReactClass
-  mixins: [React.addons.PureRenderMixin]
 
   displayName: 'Leaderboard'
 
@@ -85,10 +87,6 @@ Leaderboard = ReactClass
     playerIds: React.PropTypes.array
 
   render: ->
-    # players = {}
-    # for playerId in @props.playerIds
-    #   players[playerId] = (Player {playerId})
-
     players = @props.playerIds.map (playerId) =>
       (Player {playerId: playerId, key: playerId})
 
@@ -108,9 +106,11 @@ RenderDom = (component) -> React.render(component, document.body)
 
 Meteor.startup ->
   Tracker.autorun ->
-    RenderDom (div {className:"outer"}, [
-                (div  {className: "logo"})
-                (h1   {className: "title"},    'Leaderboard')
-                (div  {className: "subtitle"}, 'Select a scientist to give them points')
-                (Leaderboard appState())
-              ])
+    state = appState()
+    Tracker.nonreactive ->
+      RenderDom (div {className:"outer"}, [
+                  (div  {className: "logo"})
+                  (h1   {className: "title"},    'Leaderboard')
+                  (div  {className: "subtitle"}, 'Select a scientist to give them points')
+                  (Leaderboard appState())
+                ])
