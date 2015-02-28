@@ -39,7 +39,7 @@ Player = ReactClass
       score: 0
 
   selectPlayer: ->
-    Session.set('selectedPlayerId', @props.player._id)
+    Session.set 'selectedPlayerId', @props.player._id
 
   render: ->
 
@@ -47,10 +47,17 @@ Player = ReactClass
       'player': true
       'selected': @props.selected
 
-    (div {className:classes, onClick: @selectPlayer}, [
-      (span {className:"name" }, @props.player.name )
-      (span {className:"score"}, @props.player.score)
-    ])
+    div 
+      className: classes
+      , onClick: @selectPlayer
+    , [
+      span 
+        className: "name"
+      , @props.player.name
+      span 
+        className: "score"
+      , @props.player.score
+    ]
 
 
 Leaderboard = ReactClass
@@ -63,44 +70,68 @@ Leaderboard = ReactClass
     players: []
     selectedPlayerId: ''
   incPlayerScore: ->
-    Players.update(@selectedPlayer._id, {$inc: {score: 5}})
+    Players.update @selectedPlayer._id
+    , 
+      $inc:
+        score: 5
   render: ->
 
     players = @props.players.map (player) =>
-      (Player {player: player, selected: (@props.selectedPlayerId is player._id)})
+      Player 
+        player: player
+      , 
+        selected: @props.selectedPlayerId is player._id
 
     board = (div {className: "leaderboard"}, players)
 
-    @selectedPlayer = Players.findOne(@props.selectedPlayerId)
+    @selectedPlayer = Players.findOne @props.selectedPlayerId
 
     if @selectedPlayer
-      (div [
-        (board)
-        (div {className: "details"}, [
-          (span   {className: "name"},                          @selectedPlayer.name)
-          (button {className: "inc", onClick: @incPlayerScore}, 'Add 5 points'     )
-        ])
-      ])
+      div [
+        board
+        div 
+          className: "details"
+        , [
+          span
+            className: "name"
+          , @selectedPlayer.name
+          button 
+            className: "inc", onClick: @incPlayerScore
+          , 'Add 5 points'     
+        ]
+      ]
     else
-      (div [
-        (board)
-        (div {className:"message"}, 'Click a player to select')
-      ])
-
+      div [
+        board
+        div
+          className: "message"
+        , 'Click a player to select'
+      ]
 
 appState = ->
-  players = Players.find({}, { sort: { score: -1, name: 1 } }).fetch()
-  selectedPlayerId = Session.get('selectedPlayerId')
+  players = Players.find {}
+  , 
+    sort:
+      score: -1, name: 1
+  .fetch()
+  selectedPlayerId = Session.get 'selectedPlayerId'
   return {players, selectedPlayerId}
 
-RenderDom = (component) -> React.render(component, document.body)
+RenderDom = (component) -> React.render component, document.body
 
 
 Meteor.startup ->
   Tracker.autorun ->
-    RenderDom (div {className:"outer"}, [
-                (div  {className: "logo"})
-                (h1   {className: "title"},    'Leaderboard')
-                (div  {className: "subtitle"}, 'Select a scientist to give them points')
-                (Leaderboard appState())
-              ])
+    RenderDom div 
+      className:"outer"
+    , [
+        div  
+          className: "logo"
+        h1   
+          className: "title"
+        ,    'Leaderboard'
+        div  
+          className: "subtitle"
+        , 'Select a scientist to give them points'
+        Leaderboard appState()
+      ]
