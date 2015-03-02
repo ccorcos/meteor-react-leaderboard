@@ -11,11 +11,11 @@ DOM = do ->
       object[element] = build_tag element
   object
 
-ReactClass = (args...)->
-  Element = React.createClass.apply(React, args)
+ReactClass = (args...) ->
+  Element = React.createClass.apply React, args
   (options...) ->
     options.unshift {} unless typeof options[0] is 'object' and not _.isArray(options[0])
-    React.createElement.apply(React, [Element].concat(options))
+    React.createElement.apply React, [Element].concat(options) 
 
 
 
@@ -47,10 +47,11 @@ Player = ReactClass
       'player': true
       'selected': @props.selected
 
+    # coffeescript ignores newlines. human taste buds do not.
     div 
       className: classes
       , onClick: @selectPlayer
-    , [
+    , [ 
       span 
         className: "name"
       , @props.player.name
