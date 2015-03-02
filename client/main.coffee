@@ -47,7 +47,7 @@ Player = ReactClass
       'player': true
       'selected': @props.selected
 
-    # coffeescript ignores newlines. human taste buds do not.
+    # coffeescript ignores newlines. human taste buds do not. 
     div 
       className: classes
       , onClick: @selectPlayer
@@ -89,9 +89,12 @@ Leaderboard = ReactClass
 
     if @selectedPlayer
       div [
+        # removing optional comma here, div takes an array like thing
         board
         div 
           className: "details"
+        # this nested div takes a key value followed by an array.
+        # beginning the line with a comma makes it easy to see it's an argument
         , [
           span
             className: "name"
